@@ -1,0 +1,317 @@
+{
+	"info": {
+		"_postman_id": "8c56fa7b-d24b-4833-8472-f54215fb6b4b",
+		"name": "FastAPI Blog CMS - Posts",
+		"description": "Postman collection to test the Blog / Post CMS endpoints in FastAPI Boilerplate, including session authentication and CSRF token handling.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "User Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.csrf_token) {",
+									"        pm.collectionVariables.set(\"csrf_token\", jsonData.csrf_token);",
+									"        console.log(\"Saved CSRF token: \" + jsonData.csrf_token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "su29545",
+									"description": "Your registered username or email",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "SuperuserPass123!",
+									"description": "Your password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates the user and sets HTTP-only session cookies in the browser/Postman cookie jar. Also retrieves a CSRF token which is automatically saved to the collection variables for use in subsequent write/modify requests."
+					},
+					"response": []
+				},
+				{
+					"name": "User Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Invalidates the active session and clears the session and CSRF cookies."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "Create Post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.id) {",
+									"        pm.collectionVariables.set(\"last_post_id\", jsonData.id);",
+									"        console.log(\"Saved last_post_id: \" + jsonData.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"My Postman Article\",\n    \"body_content\": \"This article was published directly using Postman variables!\",\n    \"published_status\": \"draft\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/posts/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								""
+							]
+						},
+						"description": "Creates a new blog post. Requires session authentication and the custom X-CSRF-Token header. The newly created post ID is automatically saved to the collection variables as `last_post_id`."
+					},
+					"response": []
+				},
+				{
+					"name": "List All Posts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/posts/?skip=0&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								""
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Retrieves a paginated list of active, non-deleted blog posts."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Post by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/posts/{{last_post_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"{{last_post_id}}"
+							]
+						},
+						"description": "Retrieves the details of a specific blog post by ID, along with nested author information."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Post",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Postman Article\",\n    \"published_status\": \"published\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/posts/{{last_post_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"{{last_post_id}}"
+							]
+						},
+						"description": "Updates fields of a blog post. Only the author or a superuser is permitted."
+					},
+					"response": []
+				},
+				{
+					"name": "Soft Delete Post",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/posts/{{last_post_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"{{last_post_id}}"
+							]
+						},
+						"description": "Soft deletes the post (sets `is_deleted` to true). Only the author or a superuser is permitted."
+					},
+					"response": []
+				},
+				{
+					"name": "Permanently Delete Post",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-CSRF-Token",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/posts/{{last_post_id}}/permanent",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"{{last_post_id}}",
+								"permanent"
+							]
+						},
+						"description": "Permanently purges the post from the database. Only the author or a superuser is permitted."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "csrf_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "last_post_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

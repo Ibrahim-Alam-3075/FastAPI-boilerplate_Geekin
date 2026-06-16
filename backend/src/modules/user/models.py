@@ -8,6 +8,7 @@ from ...infrastructure.database.models import SoftDeleteMixin, TimestampMixin
 from ...infrastructure.database.session import Base
 
 if TYPE_CHECKING:
+    from ..post.models import Post
     from ..tier.models import Tier
 
 
@@ -49,6 +50,7 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     oauth_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     tier: Mapped["Tier | None"] = relationship("Tier", back_populates="users", lazy="selectin", init=False)
+    posts: Mapped[list["Post"]] = relationship("Post", back_populates="author", cascade="all, delete-orphan", lazy="selectin", default_factory=list, init=False)
 
     def __repr__(self) -> str:
         return f"{self.name} ({self.email})"
