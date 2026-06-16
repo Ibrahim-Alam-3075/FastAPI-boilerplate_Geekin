@@ -8,6 +8,7 @@ sys.path.append(str(backend_dir))
 from scripts.create_first_superuser import create_first_superuser  # noqa: E402
 from scripts.create_first_tier import create_first_tier  # noqa: E402
 from src.infrastructure.database.session import create_tables  # noqa: E402
+from src.modules.post.models import Post  # noqa: E402
 from src.infrastructure.logging import get_logger  # noqa: E402
 
 logger = get_logger()

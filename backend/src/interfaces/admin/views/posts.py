@@ -41,8 +41,8 @@ class PostAdmin(DataclassModelMixin, ModelView, model=Post):
     can_view_details = True
     can_export = True
 
-    form_create_rules = ["title", "body_content", "published_status", "author_id"]
-    form_edit_rules = ["title", "body_content", "published_status", "author_id", "is_deleted"]
+    form_create_rules = ["title", "body_content", "published_status", "author"]
+    form_edit_rules = ["title", "body_content", "published_status", "author", "is_deleted"]
 
     form_overrides = {"published_status": SelectField}
     form_args = {"published_status": {"choices": POST_STATUS_CHOICES}}
