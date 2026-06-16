@@ -36,7 +36,7 @@ class DataclassModelMixin:
         """
         await self.on_model_change(data, None, True, request)  # type: ignore[attr-defined]
 
-        clean_data = {}
+        clean_data: dict[str, Any] = {}
         for key, value in data.items():
             if hasattr(self, "_mapper") and key in self._mapper.relationships:
                 rel = self._mapper.relationships[key]
